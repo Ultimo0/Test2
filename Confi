@@ -1,0 +1,7 @@
+{
+  "welcome": true,
+  "welcome_message": "Bienvenue @user dans @group 🎉",
+
+  "goodbye": true,
+  "goodbye_message": "Au revoir @user 👋 Merci d'avoir été parmi nous."
+}
