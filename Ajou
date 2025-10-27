@@ -1,0 +1,49 @@
+const config = require('./config.json');
+const fs = require('fs');
+
+sock.ev.on('group-participants.update', async (update) => {
+  try {
+    const group = await sock.groupMetadata(update.id);
+    const participant = update.participants[0];
+    const username = participant.split('@')[0];
+
+    // --- ARRIVÉE ---
+    if (update.action === 'add' && config.welcome) {
+
+      const welcomeImage = fs.existsSync('./media/welcome.jpg')
+        ? fs.readFileSync('./media/welcome.jpg')
+        : null;
+
+      const welcomeText = config.welcome_message
+        .replace('@user', `@${username}`)
+        .replace('@group', group.subject);
+
+      await sock.sendMessage(update.id, {
+        ...(welcomeImage ? { image: welcomeImage } : { text: welcomeText }),
+        caption: welcomeImage ? welcomeText : undefined,
+        mentions: [participant]
+      });
+    }
+
+    // --- DÉPART ---
+    if (update.action === 'remove' && config.goodbye) {
+
+      const goodbyeImage = fs.existsSync('./media/goodbye.jpg')
+        ? fs.readFileSync('./media/goodbye.jpg')
+        : null;
+
+      const goodbyeText = config.goodbye_message
+        .replace('@user', `@${username}`)
+        .replace('@group', group.subject);
+
+      await sock.sendMessage(update.id, {
+        ...(goodbyeImage ? { image: goodbyeImage } : { text: goodbyeText }),
+        caption: goodbyeImage ? goodbyeText : undefined,
+        mentions: [participant]
+      });
+    }
+
+  } catch (err) {
+    console.log("Erreur welcome/bye:", err);
+  }
+});
